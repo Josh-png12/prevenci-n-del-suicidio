@@ -3,7 +3,7 @@
 ## Resultado final
 
 - Build: PASA (`vite build`, Vite 8.2.2).
-- Unit/component: PASA (8 tests).
+- Unit/component: PASA (9 tests).
 - E2E: PASA (2 escenarios, recorrido completo y controles).
 - Lint: PASA (ESLint sin warnings).
 - Consola: PASA (sin errores ni warnings capturados).
