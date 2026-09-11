@@ -24,3 +24,23 @@ test('allows retry, keyboard shortcuts, reset confirmation and fullscreen fallba
   await page.getByRole('button', { name: /REINICIAR MISIÓN/ }).click(); await expect(page.getByRole('dialog')).toBeVisible(); await page.getByRole('button', { name: 'Seguir misión' }).click();
   await page.getByRole('button', { name: /PANTALLA COMPLETA/ }).click();
 });
+
+test('supports office exploration, sound check and timed investigations', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.goto('/?fresh=exploration');
+  await page.getByTestId('start-mission').click();
+  await page.getByRole('button', { name: 'Abrir expediente' }).click();
+  await expect(page.getByTestId('office-clue')).toContainText('no hay que resolverlo todo a solas');
+  await page.getByTestId('enter-case').click();
+  await page.getByTestId('choice-1').click();
+  await page.getByTestId('feedback-continue').click();
+  await page.getByTestId('evidence-unlock').getByRole('button').click();
+  await page.getByTestId('enter-case').click();
+  await expect(page.getByTestId('timer')).toContainText('20s');
+  await page.getByRole('button', { name: '♪ PROBAR SONIDO' }).click();
+  await expect(page.getByTestId('sound-toast')).toBeVisible();
+  expect(pageErrors).toEqual([]);
+});
