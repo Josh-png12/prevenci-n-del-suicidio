@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { cases, evidenceMeta } from './data/cases';
 import { playTone } from './audio';
-import { isCorrect, unlockEvidence } from './game';
+import { isCorrect, isMissionComplete, unlockEvidence } from './game';
 import type { EvidenceKey, Phase } from './types';
 import { CaseCard } from './components/CaseCard';
 import { ChatCase } from './components/ChatCase';
@@ -34,7 +34,7 @@ export default function App() {
   const handleChoice = (choice: number) => { if (phase !== 'case') return; setSelected(choice); if (activeCase.kind !== 'network') finishAnswer(isCorrect(choice, activeCase.correctIndex ?? -1)); };
   const completeNetwork = () => { setSelected(0); finishAnswer(true); };
   const continueAfterFeedback = () => { if (!lastCorrect) { setPhase('case'); setSelected(null); return; } const nextUnlocked = unlockEvidence(unlocked, activeCase.evidence); setUnlocked(nextUnlocked); playTone('clue', sound); setPhase('unlock'); };
-  const continueAfterUnlock = () => { if (caseIndex === cases.length - 1) { setPhase('final_unlock'); playTone('safe', sound); } else { setCaseIndex(caseIndex + 1); setSelected(null); setPhase('office'); } };
+  const continueAfterUnlock = () => { if (isMissionComplete(caseIndex, cases.length)) { setPhase('final_unlock'); playTone('safe', sound); } else { setCaseIndex(caseIndex + 1); setSelected(null); setPhase('office'); } };
   const reset = () => { localStorage.removeItem(STORAGE); setPhase('intro'); setCaseIndex(0); setUnlocked([]); setSelected(null); setResetOpen(false); };
   const fullscreen = async () => { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); } catch { document.body.classList.toggle('focus-mode'); } };
   useEffect(() => { const listener = (event: KeyboardEvent) => { if (event.key === 'f' || event.key === 'F') void fullscreen(); if (event.key === 'Enter') { if (phase === 'intro') startMission(); else if (phase === 'office') openCase(); else if (phase === 'feedback') continueAfterFeedback(); else if (phase === 'unlock') continueAfterUnlock(); } if (phase === 'case' && ['1', '2', '3'].includes(event.key)) handleChoice(Number(event.key) - 1); if (event.key === 'Escape') setResetOpen(false); }; window.addEventListener('keydown', listener); return () => window.removeEventListener('keydown', listener); });
