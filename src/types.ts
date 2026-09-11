@@ -14,4 +14,6 @@ export type DetectiveCase = {
   correctIndex?: number;
   feedback: string;
   clue: string;
+  challengeSeconds?: number;
+  challengeLabel?: string;
 };
