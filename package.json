@@ -14,10 +14,11 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "^5.8.3",
+    "phaser": "3.90.0",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "typescript": "^5.8.3",
+    "vite": "latest"
   },
   "devDependencies": {
     "@playwright/test": "latest",
