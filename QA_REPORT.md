@@ -1,5 +1,9 @@
 # Reporte de QA
 
+## Release v1.0.0
+
+Validación final ejecutada el 11 de septiembre de 2026 sobre la rama `main`, con viewport de proyección 1920×1080 y comprobaciones adicionales en 1536×864 y 1366×768.
+
 ## Resultado final
 
 - Build: PASA (`vite build`, Vite 8.2.2).
