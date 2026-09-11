@@ -29,7 +29,7 @@ export default function App() {
   const persist = useCallback((next?: Partial<Saved>) => { try { localStorage.setItem(STORAGE, JSON.stringify({ phase, caseIndex, unlocked, sound, ...next })); } catch { /* optional */ } }, [phase, caseIndex, unlocked, sound]);
   useEffect(() => { persist(); }, [persist]);
   const startMission = () => { playTone('click', sound); setPhase('office'); };
-  const openCase = () => { playTone('click', sound); setSelected(null); setPhase('case'); };
+  const openCase = () => { playTone(activeCase.id === 2 ? 'phone' : 'click', sound); setSelected(null); setPhase('case'); };
   const finishAnswer = (correct: boolean) => { setLastCorrect(correct); setPhase('feedback'); playTone(correct ? 'clue' : 'click', sound); };
   const handleChoice = (choice: number) => { if (phase !== 'case') return; setSelected(choice); if (activeCase.kind !== 'network') finishAnswer(isCorrect(choice, activeCase.correctIndex ?? -1)); };
   const completeNetwork = () => { setSelected(0); finishAnswer(true); };
