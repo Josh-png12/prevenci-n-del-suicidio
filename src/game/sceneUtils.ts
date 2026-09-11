@@ -6,6 +6,7 @@ import { gameStore, type MissionId } from './GameStore';
 export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 720;
 export const palette = { ink: 0x173c4b, blue: 0x8edce5, sky: 0xdff6f3, mint: 0xb9ead5, cream: 0xfff8e9, coral: 0xf39b83, gold: 0xf5c75b, brown: 0x8a654e, paper: 0xfffdf5 };
+export type InteractiveState = 'LOCKED' | 'AVAILABLE' | 'COMPLETED';
 
 export function paintRoom(scene: Phaser.Scene, title: string, subtitle: string) {
   scene.cameras.main.setBackgroundColor(palette.sky);
@@ -28,13 +29,20 @@ export function addButton(scene: Phaser.Scene, x: number, y: number, width: numb
   return { background, text, hit };
 }
 
-export function addHotspot(scene: Phaser.Scene, x: number, y: number, width: number, height: number, label: string, onClick: () => void, color = palette.mint) {
-  const body = scene.add.rectangle(x, y, width, height, color, 0.92).setStrokeStyle(2, palette.ink, 0.25).setInteractive();
+export function addHotspot(scene: Phaser.Scene, x: number, y: number, width: number, height: number, label: string, onClick: () => void, color = palette.mint, status: InteractiveState = 'AVAILABLE') {
+  const baseAlpha = status === 'LOCKED' ? 0.72 : status === 'COMPLETED' ? 0.62 : 0.92;
+  const icon = status === 'LOCKED' ? '🔒' : status === 'COMPLETED' ? '✓' : '✦';
+  const body = scene.add.rectangle(x, y, width, height, color, baseAlpha).setStrokeStyle(2, palette.ink, 0.25).setInteractive();
   scene.add.text(x, y, label, { fontFamily: 'Trebuchet MS, sans-serif', fontSize: '16px', color: '#173c4b', fontStyle: 'bold', align: 'center', wordWrap: { width: width - 20 } }).setOrigin(0.5);
-  body.on('pointerover', () => { body.setFillStyle(palette.gold); body.setScale(1.04); });
-  body.on('pointerout', () => { body.setFillStyle(color); body.setScale(1); });
+  scene.add.text(x, y + height / 2 + 14, `${icon} ${status}`, { fontFamily: 'Trebuchet MS, sans-serif', fontSize: '11px', color: '#52727b', fontStyle: 'bold', backgroundColor: '#fffdf5', padding: { x: 7, y: 4 } }).setOrigin(0.5);
+  body.on('pointerover', () => { if (status === 'AVAILABLE') { body.setFillStyle(palette.gold); body.setScale(1.04); } });
+  body.on('pointerout', () => { body.setFillStyle(color); body.setAlpha(baseAlpha); body.setScale(1); });
   body.on('pointerdown', onClick);
   return body;
+}
+
+export function activityNotice(title: string, message: string, icon = '🔒', duration = 4500) {
+  EventBus.emit('activity-notice', { title, message, icon, duration });
 }
 
 export function toast(message: string, tone: 'click' | 'clue' | 'seal' | 'safe' | 'phone' | 'scanner' | 'paper' = 'click') {

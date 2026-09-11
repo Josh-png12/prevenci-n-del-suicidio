@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { EventBus } from '../EventBus';
-import { gameStore } from '../GameStore';
-import { addHotspot, drawEvidenceBoard, enterScene, palette, paintRoom, toast } from '../sceneUtils';
+import { gameStore, type MissionId } from '../GameStore';
+import { activityNotice, addHotspot, drawEvidenceBoard, enterScene, palette, paintRoom, toast, type InteractiveState } from '../sceneUtils';
 
 export class OfficeScene extends Phaser.Scene {
   private keyObject?: Phaser.GameObjects.Container;
@@ -28,29 +28,38 @@ export class OfficeScene extends Phaser.Scene {
     this.add.circle(170, 282, 72, palette.sky).setStrokeStyle(5, palette.blue, 0.9);
     this.add.line(170, 282, 170, 232, 170, 282, palette.ink, 0.8).setLineWidth(4);
     this.add.line(170, 282, 205, 300, 170, 282, palette.ink, 0.8).setLineWidth(4);
-    addHotspot(this, 170, 390, 135, 70, '🌱 PLANTA', () => { gameStore.findSecret('plant'); toast('La planta se niega a declarar. 🌱', 'click'); });
-    addHotspot(this, 330, 390, 125, 70, '☕ TAZA', () => { gameStore.findSecret('mug'); this.revealKey(); toast('El café ha desaparecido misteriosamente.', 'paper'); });
+    const missionStatus = (mission: MissionId, available: boolean): InteractiveState => gameStore.getState().completedMissions.includes(mission) ? 'COMPLETED' : available ? 'AVAILABLE' : 'LOCKED';
+    const secretStatus = (secret: string): InteractiveState => gameStore.getState().unlockedObjects.includes(secret) ? 'COMPLETED' : 'AVAILABLE';
+    const lockedNotice = (message: string) => activityNotice('ESTA PISTA TODAVÍA ESTÁ BLOQUEADA', message, '🔒');
+    const completedNotice = (message: string) => activityNotice('EXPEDIENTE YA INVESTIGADO', `✓ ${message}\nBusquemos la siguiente pista.`, '✓', 4000);
+    addHotspot(this, 170, 390, 135, 70, '🌱 PLANTA', () => { if (gameStore.getState().unlockedObjects.includes('plant')) { completedNotice('La planta ya fue revisada por el escuadrón.'); return; } gameStore.findSecret('plant'); toast('La planta se niega a declarar. 🌱', 'click'); }, palette.mint, secretStatus('plant'));
+    addHotspot(this, 330, 390, 125, 70, '☕ TAZA', () => { if (gameStore.getState().unlockedObjects.includes('mug')) { completedNotice('La taza ya reveló la pista de la llave.'); return; } gameStore.findSecret('mug'); this.revealKey(); toast('El café ha desaparecido misteriosamente.', 'paper'); }, palette.mint, secretStatus('mug'));
     addHotspot(this, 505, 390, 150, 70, '☎ TELÉFONO', () => {
-      if (gameStore.getState().completedMissions.includes('archive')) this.scene.start('ChatPuzzleScene');
-      else toast('La línea está en silencio… quizá el archivador tenga la primera pista.', 'phone');
-    }, palette.coral);
+      const current = gameStore.getState();
+      if (current.completedMissions.includes('chat')) { completedNotice('El mensaje ya fue construido con escucha y compañía.'); return; }
+      if (!current.completedMissions.includes('archive')) { lockedNotice('Parece que necesitamos investigar otra parte de la oficina antes de poder abrir este expediente.'); return; }
+      this.scene.start('ChatPuzzleScene');
+    }, palette.coral, missionStatus('chat', gameStore.getState().completedMissions.includes('archive')));
     addHotspot(this, 700, 390, 160, 70, '▤ RADIO', () => {
       const completed = gameStore.getState().completedMissions;
-      if (!completed.includes('chat')) { toast('Solo se oye una estática suave. Aún no es el momento.', 'scanner'); return; }
+      if (completed.includes('sorting')) { completedNotice('La secuencia de apoyo ya está completa.'); return; }
+      if (!completed.includes('chat')) { lockedNotice('Todavía nos falta abrir una conversación. Revisemos el archivador y el teléfono.'); return; }
       if (!completed.includes('board')) { toast('La radio despierta: un mensaje apunta al tablero.', 'scanner'); this.scene.start('EvidenceBoardScene'); return; }
       if (!completed.includes('myth')) { toast('La radio transmite tres frases para el sello de mitos.', 'scanner'); this.scene.start('MythStampScene'); return; }
       if (!completed.includes('hidden')) { toast('La radio marca una habitación llena de pistas.', 'scanner'); this.scene.start('HiddenObjectScene'); return; }
       toast('La radio despierta: kit del detective desbloqueado.', 'scanner'); this.scene.start('ToolkitScene');
-    });
+    }, palette.coral, missionStatus('sorting', gameStore.getState().completedMissions.includes('chat')));
     addHotspot(this, 885, 390, 170, 70, '▣ ARCHIVADOR', () => {
-      if (gameStore.getState().unlockedObjects.includes('key')) this.scene.start('ArchiveScene');
-      else toast('Está cerrado. El escuadrón necesita encontrar una llave.', 'click');
-    }, palette.gold);
-    addHotspot(this, 1080, 390, 145, 70, '⌕ LUPA', () => this.scene.start('MagnifierScene'), palette.blue);
-    addHotspot(this, 240, 545, 135, 60, '▣ PERIÓDICO', () => { gameStore.findSecret('newspaper'); toast('Titular: “El equipo que pregunta, encuentra caminos”.', 'paper'); });
-    addHotspot(this, 470, 545, 135, 60, '▤ FOTOGRAFÍA', () => { gameStore.findSecret('photo'); toast('Una foto del escuadrón. La misión se hace en compañía.', 'clue'); });
-    addHotspot(this, 760, 545, 145, 60, '◷ RELOJ', () => toast('El sospechoso afirma que lleva ahí todo el día.', 'click'), palette.mint);
-    addHotspot(this, 980, 545, 145, 60, '✉ CARTA', () => { gameStore.addClue('letter'); toast('La carta dice: “Escuchar abre puertas”.', 'paper'); });
+      const current = gameStore.getState();
+      if (current.completedMissions.includes('archive')) { completedNotice('La primera evidencia ya está clavada en el tablero.'); return; }
+      if (current.unlockedObjects.includes('key')) { this.scene.start('ArchiveScene'); return; }
+      lockedNotice('Parece que necesitamos investigar otra parte de la oficina antes de poder abrir este expediente.');
+    }, palette.gold, missionStatus('archive', gameStore.getState().unlockedObjects.includes('key')));
+    addHotspot(this, 1080, 390, 145, 70, '⌕ LUPA', () => { if (gameStore.getState().completedMissions.includes('magnifier')) { completedNotice('La lupa ya reveló los símbolos escondidos.'); return; } this.scene.start('MagnifierScene'); }, palette.blue, missionStatus('magnifier', true));
+    addHotspot(this, 240, 545, 135, 60, '▣ PERIÓDICO', () => { if (gameStore.getState().unlockedObjects.includes('newspaper')) { completedNotice('El titular ya fue leído por el equipo.'); return; } gameStore.findSecret('newspaper'); toast('Titular: “El equipo que pregunta, encuentra caminos”.', 'paper'); }, palette.paper, secretStatus('newspaper'));
+    addHotspot(this, 470, 545, 135, 60, '▤ FOTOGRAFÍA', () => { if (gameStore.getState().unlockedObjects.includes('photo')) { completedNotice('La fotografía ya nos recordó que la misión se hace en compañía.'); return; } gameStore.findSecret('photo'); toast('Una foto del escuadrón. La misión se hace en compañía.', 'clue'); }, palette.paper, secretStatus('photo'));
+    addHotspot(this, 760, 545, 145, 60, '◷ RELOJ', () => { if (gameStore.getState().unlockedObjects.includes('clock')) { completedNotice('El reloj ya fue investigado.'); return; } gameStore.findSecret('clock'); toast('El sospechoso afirma que lleva ahí todo el día.', 'click'); }, palette.mint, secretStatus('clock'));
+    addHotspot(this, 980, 545, 145, 60, '✉ CARTA', () => { if (gameStore.getState().clues.includes('letter')) { completedNotice('La carta ya dejó su mensaje en el cuaderno.'); return; } gameStore.addClue('letter'); toast('La carta dice: “Escuchar abre puertas”.', 'paper'); }, palette.paper, gameStore.getState().clues.includes('letter') ? 'COMPLETED' : 'AVAILABLE');
     if (!gameStore.getState().unlockedObjects.includes('key')) this.add.text(815, 610, 'Busca la llave. Una taza sospechosa puede ayudarte.', { fontFamily: 'Trebuchet MS, sans-serif', fontSize: '17px', color: '#8a654e', fontStyle: 'italic' });
     this.hintText = this.add.text(44, 680, `Pistas disponibles: ${gameStore.getState().hintsRemaining} · Secretos encontrados: ${gameStore.getState().secretsFound}`, { fontFamily: 'Trebuchet MS, sans-serif', fontSize: '16px', color: '#52727b' });
     EventBus.emit('scene-ready', 'OfficeScene');

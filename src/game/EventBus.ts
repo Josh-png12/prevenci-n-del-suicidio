@@ -1,4 +1,5 @@
 export type ToastPayload = { message: string; tone?: 'click' | 'clue' | 'seal' | 'safe' | 'phone' | 'scanner' | 'paper' };
+export type ActivityNoticePayload = { title: string; message: string; icon?: string; duration?: number };
 
 type Listener = (...args: any[]) => void;
 
