@@ -11,6 +11,7 @@ Validación final ejecutada el 11 de septiembre de 2026 sobre la rama `main`, co
 - E2E: PASA (3 escenarios: vertical slice, lupa/diálogo y recorrido completo hasta la caja fuerte).
 - Lint: PASA (ESLint sin warnings).
 - Consola: PASA (sin errores de página capturados durante E2E).
+- Aceptación de los cambios narrativos 39–42: PASA (avisos bloqueados, estados visuales, secuencia automática y reflexión final).
 
 ## Cobertura
 
