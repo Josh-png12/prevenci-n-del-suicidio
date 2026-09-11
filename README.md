@@ -24,6 +24,10 @@ La psicóloga controla el mouse y el teclado; el salón dirige la investigación
 
 Los retos temporizados dan energía pero no castigan: al terminar se activa una pista y la aventura continúa. Los easter eggs no dan puntos ni bloquean el progreso.
 
+Cada objeto muestra si está `LOCKED`, `AVAILABLE` o `COMPLETED`. Las actividades bloqueadas y los expedientes ya investigados abren un aviso grande, contrastado y legible desde el fondo del salón; permanece varios segundos y puede cerrarse con clic o `ENTER` después del tiempo mínimo de lectura.
+
+Al colocar la última pieza en la caja fuerte, la aventura continúa automáticamente: el patrón se identifica, las cinco evidencias se destacan, aparece un cierre escrito progresivamente con tono cálido y termina con una pregunta para conversar en clase. No se espera que estudiantes resuelvan problemas psicológicos: se refuerza escuchar, quedarse cerca y acudir a una persona adulta o profesional de confianza cuando haga falta.
+
 ## Verificación técnica
 
 ```text
@@ -44,7 +48,8 @@ El progreso se guarda únicamente en `localStorage` del navegador para evitar pe
 - `src/game/PhaserGame.tsx`: ciclo de vida Phaser dentro de React, con cleanup.
 - `src/game/scenes/`: Boot, oficina, archivador, lupa, diálogo, tablero, sello, hidden object, toolkit, laberinto, clasificación y caja fuerte.
 - `src/game/EventBus.ts`: comunicación escena ↔ HUD React.
-- `src/game/sceneUtils.ts`: hotspots, tablero persistente, toasts, transiciones y animación de evidencias.
+- `src/game/sceneUtils.ts`: hotspots con estado visual, avisos de actividad, tablero persistente, toasts, transiciones y animación de evidencias.
+- `src/audio.ts`: tonos de feedback y música cálida opcional para el cierre.
 
 La investigación de los repositorios de referencia está en [docs/OPEN_SOURCE_RESEARCH.md](docs/OPEN_SOURCE_RESEARCH.md).
 
