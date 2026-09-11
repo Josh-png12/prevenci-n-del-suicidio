@@ -11,11 +11,11 @@ Experiencia web cooperativa y offline-first para proyectar en clase. No requiere
 3. Haz doble clic en `INICIAR_JUEGO.bat`.
 4. Se abrirá el juego en el navegador. Pulsa **PANTALLA COMPLETA** o la tecla `F`.
 
-Si ya existe `dist/`, también puedes servir esa carpeta con cualquier servidor local estático. Para desarrollo: `pnpm dev`.
+Para revisar exactamente el build generado, usa `INICIAR_PREVIEW.bat`; si ya existe `dist/`, también puedes servir esa carpeta con cualquier servidor local estático. Para desarrollo: `pnpm dev`.
 
 ## Controles
 
-Mouse o teclado: `1 / 2 / 3` elige respuesta, `ENTER` continúa, `ESC` cierra la confirmación, `F` alterna pantalla completa. El botón de sonido es opcional y la app funciona aunque el navegador bloquee autoplay.
+Mouse o teclado: `1 / 2 / 3` elige respuesta, `ENTER` continúa, `ESC` cierra la confirmación, `F` alterna pantalla completa. En la oficina puedes investigar la lámpara, el tablero, el expediente, el teléfono y la lupa. Algunos casos tienen un tiempo de conversación visible; cuando termina, la misión continúa sin castigo. El botón de sonido es opcional y **PROBAR SONIDO** permite comprobar el audio antes de proyectar.
 
 ## Verificación técnica
 
@@ -26,6 +26,8 @@ pnpm test
 pnpm run test:e2e
 pnpm run lint
 ```
+
+Los mismos scripts funcionan con `npm` en cualquier instalación estándar de Node.js. En el entorno de desarrollo de este proyecto se verificaron con `pnpm` porque es el gestor disponible.
 
 El progreso se guarda únicamente en `localStorage` del navegador para evitar perder la partida por un recargo. No se almacenan respuestas ni información personal. `REINICIAR MISIÓN` permite borrarlo.
 
@@ -41,3 +43,4 @@ El progreso se guarda únicamente en `localStorage` del navegador para evitar pe
 - El navegador puede bloquear el modo fullscreen por políticas de ventana; el botón tiene fallback visual.
 - El audio es generado por tonos breves, sin archivos externos; requiere una primera interacción para activarse.
 - La tipografía usa fuentes del sistema para que el build sea completamente offline.
+- La experiencia está optimizada primero para proyección 16:9 en 1920×1080 y conserva controles grandes en 1536×864 y 1366×768.

@@ -3,8 +3,8 @@
 ## Resultado final
 
 - Build: PASA (`vite build`, Vite 8.2.2).
-- Unit/component: PASA (9 tests).
-- E2E: PASA (2 escenarios, recorrido completo y controles).
+- Unit/component: PASA (10 tests).
+- E2E: PASA (3 escenarios, recorrido completo, controles y nuevas interacciones).
 - Lint: PASA (ESLint sin warnings).
 - Consola: PASA (sin errores ni warnings capturados).
 
@@ -13,6 +13,7 @@
 - Reglas de juego: aciertos, errores, reintento, progreso y deduplicación de evidencias.
 - Componentes: CaseCard, Choice, EvidenceBoard, ChatCase, MythCase, SupportNetwork, Modal y FinalScreen.
 - E2E: recorrido completo de los 10 casos, respuesta incorrecta/reintento, teclado, reset y fullscreen fallback.
+- Interacción: objetos explorables de oficina, botón de prueba de sonido, temporizador no punitivo y ausencia de errores de página.
 - Build: `pnpm run build`.
 - Offline: recursos críticos locales; no hay fetch, API ni CDN.
 
